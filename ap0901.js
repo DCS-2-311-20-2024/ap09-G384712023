@@ -10,6 +10,25 @@ import { GUI } from "ili-gui";
 
 const seg = 12; // 円や円柱の分割数
 
+const canvas = document.getElementById("HP");
+const can = canvas.getContext("2d");
+
+const canvas2 = document.getElementById("Power");
+const can2 = canvas2.getContext("2d");
+
+const maxHP = 100;
+const currentHP = 100;
+
+const maxPower = 100;
+const currentPower = 100;
+
+let touchStartX = 0;
+let touchStartY = 0;
+let touchMovedX = 0;
+let touchMovedY = 0;
+
+
+
 const key = {
   w:false,
   a:false,
@@ -113,8 +132,6 @@ const key = {
     // 作成結果を戻す
     return metalRobot;
   }
-    
-  
 
 // ３Ｄページ作成関数の定義
 function init() {
@@ -124,9 +141,8 @@ function init() {
     x: -10,
     y: 10,
     z: -50, 
-    chara: true,
-    rotation: 0,
   };
+
 
   // GUIコントローラの設定
   const gui = new GUI();
@@ -134,9 +150,46 @@ function init() {
   gui.add(param, "x", -50, 50).name("x軸");
   gui.add(param, "y", 10, 50).name("y軸");
   gui.add(param, "z", -50, 50).name("z軸");
-  gui.add(param, "chara").name("キャラ追尾");
-  gui.add(param, "rotation", -1.5, 1.5).name("回転");
 
+//HPの表示
+function hpgauge(){
+  can.clearRect(0, 0, canvas.width, canvas.height);
+
+  can.fillStyle = "black";
+  can.fillRect(0, 0, canvas.width, canvas.height);
+
+  can.fillStyle = "green";
+  const hpWidth = (currentHP / maxHP) * canvas.width;
+  can.fillRect(0, 0, hpWidth, canvas.height);
+
+  can.strokeStyle = "gray";
+  can.strokeRect(0, 0, canvas.width, canvas.height);
+}
+
+hpgauge();
+
+/*
+function updateHP(newHP){
+  currentHP = Math.max(0, Math.min(newHP, maxHP));
+}
+*/
+
+//気力の表示
+function powergauge(){
+  can2.clearRect(0, 0, canvas2.width, canvas2.height);
+
+  can2.fillStyle = "black";
+  can2.fillRect(0, 0, canvas2.width, canvas2.height);
+
+  can2.fillStyle = "rgb(251, 176, 52)";
+  const PowerWidth = (currentPower / maxPower) * canvas2.width;
+  can2.fillRect(0, 0, PowerWidth, canvas2.height);
+
+  can2.strokeStyle = "gray";
+  can2.strokeRect(0, 0, canvas2.width, canvas2.height);
+}
+
+powergauge();
 
   // シーン作成
   const scene = new THREE.Scene();
@@ -150,7 +203,7 @@ function init() {
     50, window.innerWidth/window.innerHeight, 0.1, 1000);
   camera.position.set(-5,2,-50);
   camera.lookAt(0,2,30);
-  
+
   // レンダラの設定
   const renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, innerHeight);
@@ -161,7 +214,6 @@ function init() {
   window.addEventListener('load', () => {
     renderer.domElement.focus();  // キャンバスにフォーカスを当てる
   });
-
 
   //　平面の作成
   const plane = new THREE.Mesh(
@@ -181,7 +233,7 @@ function init() {
 
   scene.add(light);
 
-  // 画像の読み込み
+  // 画像の読み込みと空の動き
   const textureLoader = new THREE.TextureLoader();
   const bluesky = textureLoader.load("sky.jpg");
   bluesky.wrapS = THREE.RepeatWrapping; // 水平方向に繰り返し
@@ -189,12 +241,6 @@ function init() {
   bluesky.repeat.set(0.5, 0.5); // 繰り返しのスケール（必要に応じて調整）
   scene.background = bluesky;
 
-  // メインキャラの追加
-  const MainCharacter = MakeMainCharacter();
-  MainCharacter.position.x = 3;
-  scene.add(MainCharacter);
-
-  
   // 描画処理
 
   // キーボードイベントの設定
@@ -214,53 +260,94 @@ function init() {
     if (event.key === ' ') key.space = false;
   });
 
+  document.addEventListener('touchstart', (event) => {
+    console.log("touchstart triggered");
+    if (event.touches.length == 2) { // 2本指でのタッチ
+      touchStartX = event.touches[0].pageX;
+      touchStartY = event.touches[0].pageY;
+
+      event.preventDefault();
+      console.log("touchStartX:", touchStartX, "touchStartY:", touchStartY);  // 初期位置確認
+    }
+  });
+  
+  document.addEventListener('touchmove', (event) => {
+    if (event.touches.length == 2) {
+      touchMovedX = event.touches[0].pageX - touchStartX;
+      touchMovedY = event.touches[0].pageY - touchStartY;
+      
+      console.log("touchMovedX22:", touchMovedX, "touchMovedY22:", touchMovedY);
+
+      // キャラクターの回転を加える
+      MainCharacter.rotation.y = touchMovedX * 1.01; // 回転量を調整
+      console.log("MainCharacter.rotation.y:", MainCharacter.rotation.y);
+
+      // タッチ移動量によってカメラの回転
+      camera.position.x = MainCharacter.position.x + Math.sin(touchMovedX * 0.01) * 50;
+      camera.position.z = MainCharacter.position.z + Math.cos(touchMovedX * 0.01) * 50;
+      camera.position.y = MainCharacter.position.y + 10 + touchMovedY * 0.1; // 高さ調整
+      camera.lookAt(MainCharacter.position);
+    }
+  });
+  
+  document.addEventListener('touchend', (event) => {
+    // タッチ終了時に初期化
+    touchStartX = 0;
+    touchStartY = 0;
+    touchMovedX = 0;
+    touchMovedY = 0;
+  });
+
+  // メインキャラの追加
+  const MainCharacter = MakeMainCharacter();
+  MainCharacter.position.x = 48;
+  MainCharacter.position.z = -48;
+  scene.add(MainCharacter);
+
   // 描画関数
   function render() {
-    camera.position.x = param.x;
-    camera.position.y = param.y;
-    camera.position.z = param.z;
-
-    
-    camera.rotation.y = param.rotation;
     // 座標軸の表示
     axes.visible = param.axes;
-    
-    // 次のフレームでの描画要請
-    requestAnimationFrame(render);
 
+    
     if (bluesky) {
       bluesky.offset.x += 0.00025; // 水平方向に少しずつ動かす
       bluesky.offset.y += 0.000125; // 垂直方向に少しずつ動かす
-    }
-
-    if(!param.chara){
-      camera.position.x = param.x;
-      camera.position.y = param.y;
-      camera.position.z = param.z;
-    }
-
-    if(param.chara){ //キャラを追尾
-      camera.position.x = MainCharacter.position.x;
-      camera.position.y = MainCharacter.position.y + 10;
-      camera.position.z = MainCharacter.position.z - 40;
-    }
+    }    
 
     // キャラクターの移動
     if (key.w) MainCharacter.position.z += 0.3; // 前進
     if (key.s) MainCharacter.position.z -= 0.3; // 後退
     if (key.a) MainCharacter.position.x += 0.15; // 左
     if (key.d) MainCharacter.position.x -= 0.15; // 右
-    if (key.space && MainCharacter.position.y == 0){
-     
-      MainCharacter.position.y += 5;  
-    }
 
+    //以下はspaceキーを押すとブラウザがスクロールされるのを防ぐために追加
+    document.addEventListener('keydown', function(event) {
+      if (event.code === 'Space') {
+        event.preventDefault();  // ←←←←←←スペースキーによるスクロールを防ぐ
+        if (key.space && MainCharacter.position.y == 0){
+          MainCharacter.position.y += 5;  
+        }
+      }
+    });
+    
+    //ジャンプした後、地面につくため
     if(MainCharacter.position.y > 0){
       MainCharacter.position.y -= 0.25; 
     } 
 
+    //カメラはキャラを追尾
+    camera.position.x = MainCharacter.position.x;
+    camera.position.y = MainCharacter.position.y + 10;
+    camera.position.z = MainCharacter.position.z - 40;
+
+
     // 描画
     renderer.render(scene, camera);
+
+    // 次のフレームでの描画要請
+    requestAnimationFrame(render);
+
   }
 
   // 描画開始
