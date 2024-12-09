@@ -20,10 +20,14 @@ const can3 = canvas3.getContext("2d");
 
 
 const maxHP = 100;
-const currentHP = 100;
+let currentHP = 100;
 
 const maxPower = 100;
-const currentPower = 100;
+let currentPower = 100;
+
+const maxBHP = 200;
+let currentBHP = 200;
+
 
 const key = {
   w:false,
@@ -31,6 +35,7 @@ const key = {
   s:false,
   d:false,
 };
+
 
   //プレイヤーの作成
   export function MakeMainCharacter() {
@@ -166,12 +171,6 @@ function hpgauge(){
 
 hpgauge();
 
-/*
-function updateHP(newHP){
-  currentHP = Math.max(0, Math.min(newHP, maxHP));
-}
-*/
-
   //ボスHPの表示
   function bosshp(){
     can3.clearRect(0, 0, canvas3.width, canvas3.height);
@@ -180,7 +179,7 @@ function updateHP(newHP){
     can3.fillRect(0, 0, canvas3.width, canvas3.height);
 
     can3.fillStyle = "red";
-    const PowerWidth = (currentPower / maxPower) * canvas3.width;
+    const PowerWidth = (currentBHP / maxBHP) * canvas3.width;
     can3.fillRect(0, 0, PowerWidth, canvas3.height);
 
     can3.strokeStyle = "gray";
@@ -308,7 +307,6 @@ function updateHP(newHP){
   makeBuilding(30, 20, 2);
   makeBuilding(25, -10, 3);
 
-
   // 描画処理
 
   // キーボードイベントのd設定
@@ -318,6 +316,7 @@ function updateHP(newHP){
     if (event.key === 's') key.s = true;
     if (event.key === 'd') key.d = true;
     if (event.key === ' ') key.space = true;
+    if (event.key === 'j') key.j = true;
     });
 
   document.addEventListener('keyup', (event) => {
@@ -326,6 +325,7 @@ function updateHP(newHP){
     if (event.key === 's') key.s = false;
     if (event.key === 'd') key.d = false;
     if (event.key === ' ') key.space = false;
+    if (event.key === 'j') key.j = false;
   });
 
   // メインキャラの追加
@@ -334,11 +334,32 @@ function updateHP(newHP){
   MainCharacter.position.z = -48;
   scene.add(MainCharacter);
 
+  const MainCharacter2 = MakeMainCharacter();
+  MainCharacter2.position.z = 30;
+  scene.add(MainCharacter2);
+
+
+  function checkCharacterCollision() {
+    const box1 = new THREE.Box3().setFromObject(MainCharacter);
+    const box2 = new THREE.Box3().setFromObject(MainCharacter2);
+  
+    if (box1.intersectsBox(box2)) {
+      currentHP -= 0.1;
+      hpgauge();
+  
+      if (currentHP < 0) {
+        currentHP = 0;
+      }
+    }
+  }
+
+  
   // 描画関数
   function render() {
     // 座標軸の表示
     axes.visible = param.axes;
 
+    checkCharacterCollision();
     
     if (bluesky) {
       bluesky.offset.x += 0.00025; // 水平方向に少しずつ動かす
@@ -352,6 +373,7 @@ function updateHP(newHP){
       scene.background = new THREE.Color(0x6B0A0A); // 赤の空に変更
       light.intensity = 0.5; 
       bosshp();
+      MainCharacter2.scale.set(4, 4, 4);
     }
 
     // キャラクターの移動
@@ -362,8 +384,8 @@ function updateHP(newHP){
 
     //以下はspaceキーを押すとブラウザがスクロールされるのを防ぐために追加
     //導入前はジャンプのためにspaceキーを押すとWebページの方がスクロールされてしまった.
-    document.addEventListener('keydown', function(event) {
-      if (event.code === 'Space') {
+    document.addEventListener('keydown', (event) => {
+      if (key.space) {
         event.preventDefault();  // ←←←←←←スペースキーによるスクロールを防ぐ
         if (key.space && MainCharacter.position.y == 0){
           MainCharacter.position.y += 5;  
@@ -371,6 +393,21 @@ function updateHP(newHP){
       }
     });
     
+    document.addEventListener('keydown', (event) => {
+      if (event.key == 'k' && currentPower == 100) {
+        currentPower -= 100;
+        if (currentPower < 0){
+          currentPower = 0; 
+        }
+        powergauge();
+      }
+    });
+
+    if(currentPower < maxPower){
+      currentPower += 0.5;
+      powergauge();
+    }
+
     //ジャンプした後、地面につくため
     if(MainCharacter.position.y > 0){
       MainCharacter.position.y -= 0.25; 
