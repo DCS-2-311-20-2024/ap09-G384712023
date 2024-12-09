@@ -7,7 +7,6 @@
 // ライブラリをモジュールとして読み込む
 import * as THREE from "three";
 import { GUI } from "ili-gui";
-
 const seg = 12; // 円や円柱の分割数
 
 const canvas = document.getElementById("HP");
@@ -42,43 +41,45 @@ const key = {
     const metalRobot = new THREE.Group //metalRobotグループを作っている
     const metalMaterial = new THREE.MeshPhongMaterial( // Phong・・・光沢のある素材　前回のとは別
       {color: 0xFEDCBD, shininess: 60, specular: 0x222222 });
-    const redMaterial = new THREE.MeshBasicMaterial({color: 0x000000});
+    const BlackMaterial = new THREE.MeshPhongMaterial({color: 0x000000});
+    const RedMaterial = new THREE.MeshPhongMaterial({color: 0xFF0000});
     const legRad = 0.5; // 脚の円柱の半径
-    const legLen = 3; // 脚の円柱の長さ
+    const legLen = 2.3; // 脚の円柱の長さ
     const legSep = 1.2; // 脚の間隔
     const bodyW = 3; // 胴体の幅
-    const bodyH = 3; // 胴体の高さ
+    const bodyH = 2.2; // 胴体の高さ
     const bodyD = 2; // 胴体の奥行
     const armRad = 0.4; // 腕の円柱の半径
-    const armLen = 3.8; // 腕の円柱の長さ
+    const armLen = 2.3; // 腕の円柱の長さ
     const headRad = 1.2; // 頭の半径
     const eyeRad = 0.2; // 目の半径
     const eyeSep = 0.8; // 目の間隔
     //  脚の作成
     const legGeometry
       = new THREE.CylinderGeometry(legRad, legRad, legLen, seg, seg); //Cylinder・・・円柱
-    const legR = new THREE.Mesh(legGeometry, metalMaterial);
+    const legR = new THREE.Mesh(legGeometry, BlackMaterial);
     legR.position.set(-legSep/2, legLen/2, 0); //　1/2しているのは半径だから
     metalRobot.add(legR); //metalRobotに右足を追加
   
-    const legL = new THREE.Mesh(legGeometry, metalMaterial);
+    const legL = new THREE.Mesh(legGeometry, BlackMaterial);
     legL.position.set(legSep/2, legLen/2, 0);
     metalRobot.add(legL);
+
     //  胴体の作成
     const bodyGeometry = new THREE.BoxGeometry(bodyW - bodyD, bodyH, bodyD);
     const body = new THREE.Group; //bodyグループ
-    body.add(new THREE.Mesh(bodyGeometry, metalMaterial));
+    body.add(new THREE.Mesh(bodyGeometry, RedMaterial));
     const bodyL = new THREE.Mesh(
       new THREE.CylinderGeometry(
         bodyD/2, bodyD/2, bodyH, seg, 1, false, 0, Math.PI),
-      metalMaterial);
+        RedMaterial);
     bodyL.position.x = (bodyW - bodyD)/2;
     body.add(bodyL);
     
     const bodyR = new THREE.Mesh(
       new THREE.CylinderGeometry(
         bodyD/2, bodyD/2, bodyH, seg, 1, false, Math.PI, Math.PI),
-      metalMaterial);
+        RedMaterial);
     bodyR.position.x = -(bodyW - bodyD) / 2;
     body.add(bodyR);
     
@@ -108,11 +109,11 @@ const key = {
     head.add(new THREE.Mesh(headGeometry, metalMaterial));
     //　目の追加
     const circleGeometry = new THREE.CircleGeometry(eyeRad, seg);
-    const eyeL = new THREE.Mesh(circleGeometry, redMaterial);
+    const eyeL = new THREE.Mesh(circleGeometry, BlackMaterial);
     eyeL.position.set(eyeSep/2, headRad/3, headRad-0.04);
     head.add(eyeL);
   
-    const eyeR = new THREE.Mesh(circleGeometry, redMaterial);
+    const eyeR = new THREE.Mesh(circleGeometry, BlackMaterial);
     eyeR.position.set(-eyeSep/2, headRad/3, headRad-0.04);
     head.add(eyeR);
   
@@ -219,7 +220,7 @@ powergauge();
   const textureLoader = new THREE.TextureLoader();
   const asphalt = textureLoader.load("asphalt.jpg");
   const plane = new THREE.Mesh(
-    new THREE.PlaneGeometry(100, 100),
+    new THREE.PlaneGeometry(200, 150),
     new THREE.MeshPhongMaterial({map: asphalt})
   );
   plane.rotation.x = -Math.PI / 2;
@@ -279,10 +280,15 @@ makeBuilding(10, 20, 3);
 makeBuilding(12, 0, 1);
 makeBuilding(20, 4, 4);
 makeBuilding(-20, -7, 0);
-makeBuilding(-20, 0, 2);
+makeBuilding(-10, -20, 1);
+makeBuilding(-25, 10, 2);
+makeBuilding(-20, 0, 3);
 makeBuilding(20, 20, 2);
 makeBuilding(16, 20, 2);
 makeBuilding(-15, 10, 2);
+makeBuilding(25, -5, 2);
+makeBuilding(30, 20, 2);
+makeBuilding(25, -10, 3);
 
 
   // 描画処理
