@@ -15,6 +15,10 @@ const can = canvas.getContext("2d");
 const canvas2 = document.getElementById("Power");
 const can2 = canvas2.getContext("2d");
 
+const canvas3 = document.getElementById("Boss");
+const can3 = canvas3.getContext("2d");
+
+
 const maxHP = 100;
 const currentHP = 100;
 
@@ -168,22 +172,37 @@ function updateHP(newHP){
 }
 */
 
-//気力の表示
-function powergauge(){
-  can2.clearRect(0, 0, canvas2.width, canvas2.height);
+  //ボスHPの表示
+  function bosshp(){
+    can3.clearRect(0, 0, canvas3.width, canvas3.height);
 
-  can2.fillStyle = "black";
-  can2.fillRect(0, 0, canvas2.width, canvas2.height);
+    can3.fillStyle = "black";
+    can3.fillRect(0, 0, canvas3.width, canvas3.height);
 
-  can2.fillStyle = "rgb(251, 176, 52)";
-  const PowerWidth = (currentPower / maxPower) * canvas2.width;
-  can2.fillRect(0, 0, PowerWidth, canvas2.height);
+    can3.fillStyle = "red";
+    const PowerWidth = (currentPower / maxPower) * canvas3.width;
+    can3.fillRect(0, 0, PowerWidth, canvas3.height);
 
-  can2.strokeStyle = "gray";
-  can2.strokeRect(0, 0, canvas2.width, canvas2.height);
-}
+    can3.strokeStyle = "gray";
+    can3.strokeRect(0, 0, canvas3.width, canvas3.height);
+  }
 
-powergauge();
+  //気力の表示
+  function powergauge(){
+    can2.clearRect(0, 0, canvas2.width, canvas2.height);
+
+    can2.fillStyle = "black";
+    can2.fillRect(0, 0, canvas2.width, canvas2.height);
+
+    can2.fillStyle = "rgb(251, 176, 52)";
+    const PowerWidth = (currentPower / maxPower) * canvas2.width;
+    can2.fillRect(0, 0, PowerWidth, canvas2.height);
+
+    can2.strokeStyle = "gray";
+    can2.strokeRect(0, 0, canvas2.width, canvas2.height);
+  }
+
+  powergauge();
 
   // シーン作成
   const scene = new THREE.Scene();
@@ -270,23 +289,24 @@ powergauge();
     bldg.castShadow = true;
     bldg.receiveShadow = true;
     scene.add(bldg);
-}
-makeBuilding(12, -20, 1);
-makeBuilding(-20, -17, 2);
-makeBuilding(-12, -10, 4);
-makeBuilding(10, 20, 3);
-makeBuilding(12, 0, 1);
-makeBuilding(20, 4, 4);
-makeBuilding(-20, -7, 0);
-makeBuilding(-10, -20, 1);
-makeBuilding(-25, 10, 2);
-makeBuilding(-20, 0, 3);
-makeBuilding(20, 20, 2);
-makeBuilding(16, 20, 2);
-makeBuilding(-15, 10, 2);
-makeBuilding(25, -5, 2);
-makeBuilding(30, 20, 2);
-makeBuilding(25, -10, 3);
+  }
+
+  makeBuilding(12, -20, 1);
+  makeBuilding(-20, -17, 2);
+  makeBuilding(-12, -10, 4);
+  makeBuilding(10, 20, 3);
+  makeBuilding(12, 0, 1);
+  makeBuilding(20, 4, 4);
+  makeBuilding(-20, -7, 0);
+  makeBuilding(-10, -20, 1);
+  makeBuilding(-25, 10, 2);
+  makeBuilding(-20, 0, 3);
+  makeBuilding(20, 20, 2);
+  makeBuilding(16, 20, 2);
+  makeBuilding(-15, 10, 2);
+  makeBuilding(25, -5, 2);
+  makeBuilding(30, 20, 2);
+  makeBuilding(25, -10, 3);
 
 
   // 描画処理
@@ -329,7 +349,9 @@ makeBuilding(25, -10, 3);
     const elapsedTime = currentTime - startTime;
 
     if (elapsedTime >= changesky) {
-      scene.background = new THREE.Color(0xff0000); // 赤の空に変更
+      scene.background = new THREE.Color(0x6B0A0A); // 赤の空に変更
+      light.intensity = 0.5; 
+      bosshp();
     }
 
     // キャラクターの移動
