@@ -21,13 +21,6 @@ const currentHP = 100;
 const maxPower = 100;
 const currentPower = 100;
 
-let touchStartX = 0;
-let touchStartY = 0;
-let touchMovedX = 0;
-let touchMovedY = 0;
-
-
-
 const key = {
   w:false,
   a:false,
@@ -230,8 +223,8 @@ powergauge();
   // 光源の作成
   const light = new THREE.DirectionalLight(0xffffff, 5);
   light.position.set(10, 10, -5);
-  light.shadowMapWidth = 2048; 
-  light.shadowMapHeight = 2048; 
+  light.shadowMapWidth = 256; 
+  light.shadowMapHeight = 256; 
   light.castShadow = true;
 
   scene.add(light);
@@ -242,6 +235,9 @@ powergauge();
   bluesky.wrapT = THREE.RepeatWrapping; // 垂直方向に繰り返し
   bluesky.repeat.set(0.5, 0.5); // 繰り返しのスケール（必要に応じて調整）
   scene.background = bluesky;
+
+  const startTime = performance.now();  
+  const changesky = 5000; 
 
   //　画像の読み込みとビルの作成
   const texture = textureLoader.load("cityTexture.png");
@@ -271,6 +267,8 @@ powergauge();
         material
     )
     bldg.position.set(x + x, bldgH/2, z + z);
+    bldg.castShadow = true;
+    bldg.receiveShadow = true;
     scene.add(bldg);
 }
 makeBuilding(12, -20, 1);
@@ -310,44 +308,6 @@ makeBuilding(25, -10, 3);
     if (event.key === ' ') key.space = false;
   });
 
-  document.addEventListener('touchstart', (event) => {
-    console.log("touchstart triggered");
-    if (event.touches.length == 2) { // 2本指でのタッチ
-      touchStartX = event.touches[0].pageX;
-      touchStartY = event.touches[0].pageY;
-
-      event.preventDefault();
-      console.log("touchStartX:", touchStartX, "touchStartY:", touchStartY);  // 初期位置確認
-    }
-  });
-  
-  document.addEventListener('touchmove', (event) => {
-    if (event.touches.length == 2) {
-      touchMovedX = event.touches[0].pageX - touchStartX;
-      touchMovedY = event.touches[0].pageY - touchStartY;
-      
-      console.log("touchMovedX22:", touchMovedX, "touchMovedY22:", touchMovedY);
-
-      // キャラクターの回転を加える
-      MainCharacter.rotation.y = touchMovedX * 1.01; // 回転量を調整
-      console.log("MainCharacter.rotation.y:", MainCharacter.rotation.y);
-
-      // タッチ移動量によってカメラの回転
-      camera.position.x = MainCharacter.position.x + Math.sin(touchMovedX * 0.01) * 50;
-      camera.position.z = MainCharacter.position.z + Math.cos(touchMovedX * 0.01) * 50;
-      camera.position.y = MainCharacter.position.y + 10 + touchMovedY * 0.1; // 高さ調整
-      camera.lookAt(MainCharacter.position);
-    }
-  });
-  
-  document.addEventListener('touchend', (event) => {
-    // タッチ終了時に初期化
-    touchStartX = 0;
-    touchStartY = 0;
-    touchMovedX = 0;
-    touchMovedY = 0;
-  });
-
   // メインキャラの追加
   const MainCharacter = MakeMainCharacter();
   MainCharacter.position.x = 0;
@@ -364,6 +324,13 @@ makeBuilding(25, -10, 3);
       bluesky.offset.x += 0.00025; // 水平方向に少しずつ動かす
       bluesky.offset.y += 0.000125; // 垂直方向に少しずつ動かす
     }    
+
+    const currentTime = performance.now();
+    const elapsedTime = currentTime - startTime;
+
+    if (elapsedTime >= changesky) {
+      scene.background = new THREE.Color(0xff0000); // 赤の空に変更
+    }
 
     // キャラクターの移動
     if (key.w) MainCharacter.position.z += 0.3; // 前進
