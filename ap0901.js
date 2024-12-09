@@ -215,10 +215,12 @@ powergauge();
     renderer.domElement.focus();  // キャンバスにフォーカスを当てる
   });
 
-  //　平面の作成
+  //　画像の読み込みと平面の作成
+  const textureLoader = new THREE.TextureLoader();
+  const asphalt = textureLoader.load("asphalt.jpg");
   const plane = new THREE.Mesh(
     new THREE.PlaneGeometry(100, 100),
-    new THREE.MeshPhongMaterial({color: 0x008010})
+    new THREE.MeshPhongMaterial({map: asphalt})
   );
   plane.rotation.x = -Math.PI / 2;
   plane.receiveShadow = true;
@@ -226,7 +228,7 @@ powergauge();
 
   // 光源の作成
   const light = new THREE.DirectionalLight(0xffffff, 5);
-  light.position.set(-2, 10, 10);
+  light.position.set(10, 10, -5);
   light.shadowMapWidth = 2048; 
   light.shadowMapHeight = 2048; 
   light.castShadow = true;
@@ -234,16 +236,58 @@ powergauge();
   scene.add(light);
 
   // 画像の読み込みと空の動き
-  const textureLoader = new THREE.TextureLoader();
   const bluesky = textureLoader.load("sky.jpg");
   bluesky.wrapS = THREE.RepeatWrapping; // 水平方向に繰り返し
   bluesky.wrapT = THREE.RepeatWrapping; // 垂直方向に繰り返し
   bluesky.repeat.set(0.5, 0.5); // 繰り返しのスケール（必要に応じて調整）
   scene.background = bluesky;
 
+  //　画像の読み込みとビルの作成
+  const texture = textureLoader.load("cityTexture.png");
+  
+  function makeBuilding(x, z, type) {
+    const height = [2, 2, 7, 4, 5];
+    const bldgH = height[type] * 5;
+    const geometry = new THREE.BoxGeometry(8, bldgH, 8);
+    const material = new THREE.MeshPhongMaterial({map: texture});
+    const sideUvS = (type*2 + 1)/11;
+    const sideUvE = (type*2 + 2)/11;
+    const topUvS = (type*2 + 2)/11;
+    const topUvE = (type*2 + 3)/11;
+    const uvs = geometry.getAttribute("uv");
+    for(let i = 0; i < 48; i+=4){
+        if(i < 16 || i > 22){
+            uvs.array[i] = sideUvS;
+            uvs.array[i + 2] = sideUvE;
+        }
+        else{
+            uvs.array[i] = topUvS;
+            uvs.array[i + 2] = topUvE;
+        }
+    } 
+    const bldg = new THREE.Mesh(
+        geometry,
+        material
+    )
+    bldg.position.set(x + x, bldgH/2, z + z);
+    scene.add(bldg);
+}
+makeBuilding(12, -20, 1);
+makeBuilding(-20, -17, 2);
+makeBuilding(-12, -10, 4);
+makeBuilding(10, 20, 3);
+makeBuilding(12, 0, 1);
+makeBuilding(20, 4, 4);
+makeBuilding(-20, -7, 0);
+makeBuilding(-20, 0, 2);
+makeBuilding(20, 20, 2);
+makeBuilding(16, 20, 2);
+makeBuilding(-15, 10, 2);
+
+
   // 描画処理
 
-  // キーボードイベントの設定
+  // キーボードイベントのd設定
   document.addEventListener('keydown', (event) => {
     if (event.key === 'w') key.w = true;
     if (event.key === 'a') key.a = true;
@@ -300,7 +344,7 @@ powergauge();
 
   // メインキャラの追加
   const MainCharacter = MakeMainCharacter();
-  MainCharacter.position.x = 48;
+  MainCharacter.position.x = 0;
   MainCharacter.position.z = -48;
   scene.add(MainCharacter);
 
@@ -322,6 +366,7 @@ powergauge();
     if (key.d) MainCharacter.position.x -= 0.15; // 右
 
     //以下はspaceキーを押すとブラウザがスクロールされるのを防ぐために追加
+    //導入前はジャンプのためにspaceキーを押すとWebページの方がスクロールされてしまった.
     document.addEventListener('keydown', function(event) {
       if (event.code === 'Space') {
         event.preventDefault();  // ←←←←←←スペースキーによるスクロールを防ぐ
