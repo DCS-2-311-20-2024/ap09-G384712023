@@ -18,6 +18,7 @@ const can2 = canvas2.getContext("2d");
 const canvas3 = document.getElementById("Boss");
 const can3 = canvas3.getContext("2d");
 
+const ID = document.getElementById("sentence");
 
 const maxHP = 100;
 let currentHP = 100;
@@ -341,7 +342,7 @@ hpgauge();
     const box1 = new THREE.Box3().setFromObject(MainCharacter);
     const box2 = new THREE.Box3().setFromObject(MainCharacter2);
   
-    if (box1.intersectsBox(box2)) {
+    if (box1.intersectsBox(box2) && currentBHP > 0) {
       currentHP -= 0.1;
       hpgauge();
   
@@ -357,7 +358,7 @@ hpgauge();
     // 座標軸の表示
     axes.visible = param.axes;
 
-    checkCharacterCollision();
+    checkCharacterCollision(); //キャラとボスの衝突判定
     
     if (bluesky) {
       bluesky.offset.x += 0.00025; // 水平方向に少しずつ動かす
@@ -371,7 +372,7 @@ hpgauge();
       scene.background = new THREE.Color(0x6B0A0A); // 赤の空に変更
       light.intensity = 0.5; 
       bosshp();
-      MainCharacter2.scale.set(4, 4, 4);
+      MainCharacter2.scale.set(7, 7, 7);
     }
 
     // キャラクターの移動
@@ -391,6 +392,12 @@ hpgauge();
       }
     });
     
+    //ジャンプした後、地面につくため
+    if(MainCharacter.position.y > 0){
+      MainCharacter.position.y -= 0.25; 
+    } 
+
+
     let isAttacking = false; // 攻撃中フラグ
     let isKeyDown = false;   // キー押下フラグ
     
@@ -451,10 +458,12 @@ hpgauge();
       powergauge();
     }
 
-    //ジャンプした後、地面につくため
-    if(MainCharacter.position.y > 0){
-      MainCharacter.position.y -= 0.25; 
-    } 
+    if(currentBHP <= 0){
+      scene.background = bluesky; //ボスを倒したら空は元に戻る
+      light.intensity = 5; //光の強さも同様に戻る
+      scene.remove(MainCharacter2);//ボスをmapから消す
+      ID.innerText = "Game Clear!";
+    }
 
     //カメラはキャラを追尾
     camera.position.x = MainCharacter.position.x;
