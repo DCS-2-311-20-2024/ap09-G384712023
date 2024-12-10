@@ -459,8 +459,11 @@ hpgauge();
       scene.background = bluesky; //ボスを倒したら空は元に戻る
       light.intensity = 5; //光の強さも同様に戻る
       scene.remove(MainCharacter2);//ボスをmapから消す
-      ID.innerText = "Game Clear!";
+      ID.innerText = "Game Clear!　　10秒後に再ロードします";
       counter = false;
+      setTimeout(() => {
+        location.reload();
+      }, 10000); // game clearから10秒経ったら、sceneを再ロード
     }
 
     if (currentHP <= 0) {
