@@ -250,7 +250,7 @@ hpgauge();
   scene.background = bluesky;
 
   const startTime = performance.now();  
-  const changesky = 5000; 
+  const changesky = 3000; 
 
   //　画像の読み込みとビルの作成
   const texture = textureLoader.load("cityTexture.png");
@@ -346,7 +346,8 @@ hpgauge();
     }
   }
 
-  
+  let counter = true;
+
   // 描画関数
   function render() {
     // 座標軸の表示
@@ -370,22 +371,22 @@ hpgauge();
     }
 
     // キャラクターの移動
-    if (key.w){
+    if (key.w && counter){
       MainCharacter.position.z += 0.3; // 前進
       MainCharacter2.position.z -= 0.3;
     }
 
-    if (key.s){
+    if (key.s && counter){
       MainCharacter.position.z -= 0.3; // 後退
       MainCharacter2.position.z += 0.3;
     }
 
-    if (key.a){
+    if (key.a && counter){
       MainCharacter.position.x += 0.15; // 左
       MainCharacter2.position.x += 0.15;
     }
 
-    if (key.d){
+    if (key.d && counter){
       MainCharacter.position.x -= 0.15; // 右
       MainCharacter2.position.x -= 0.15; // 右
     }
@@ -393,7 +394,7 @@ hpgauge();
     //以下はspaceキーを押すとブラウザがスクロールされるのを防ぐために追加
     //導入前はジャンプのためにspaceキーを押すとWebページの方がスクロールされてしまった.
     document.addEventListener('keydown', (event) => {
-      if (key.space) {
+      if (key.space && counter) {
         event.preventDefault();  // ←←←←←←スペースキーによるスクロールを防ぐ
         if (key.space && MainCharacter.position.y == 0){
           MainCharacter.position.y += 5;  
@@ -458,10 +459,11 @@ hpgauge();
       light.intensity = 5; //光の強さも同様に戻る
       scene.remove(MainCharacter2);//ボスをmapから消す
       ID.innerText = "Game Clear!";
+      counter = false;
     }
 
     if (currentHP <= 0) {
-      ID.innerText = "Game Over!";
+      ID.innerText = "Game Over!　　3秒後に再ロードします";
       setTimeout(() => {
         location.reload();
       }, 3000); // game overから3秒経ったら、sceneを再ロード
