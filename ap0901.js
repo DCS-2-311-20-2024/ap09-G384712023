@@ -468,6 +468,7 @@ hpgauge();
 
     if (currentHP <= 0) {
       ID.innerText = "Game Over!　　3秒後に再ロードします";
+      counter = false;
       setTimeout(() => {
         location.reload();
       }, 3000); // game overから3秒経ったら、sceneを再ロード
