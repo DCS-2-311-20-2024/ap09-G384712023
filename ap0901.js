@@ -400,8 +400,20 @@ hpgauge();
           currentPower = 0; 
         }
         powergauge();
+
+        const box1 = new THREE.Box3().setFromObject(MainCharacter);
+        const box2 = new THREE.Box3().setFromObject(MainCharacter2);
+
+      if (box1.intersectsBox(box2)) {
+        currentBHP -= 50; // 必殺技のダメージ
+        if (currentBHP < 0) {
+          currentBHP = 0;
+        }
+        bosshp(); // ボスのHPゲージを更新する関数
       }
-    });
+      
+    }
+  });
 
     if(currentPower < maxPower){
       currentPower += 0.5;
