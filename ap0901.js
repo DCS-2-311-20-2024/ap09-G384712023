@@ -141,19 +141,13 @@ const key = {
 function init() {
   // 制御変数の定義
   const param = {
-    axes: true, // 座標軸
-    x: -10,
-    y: 10,
-    z: -50, 
+    axes: false, // 座標軸
   };
 
 
   // GUIコントローラの設定
   const gui = new GUI();
   gui.add(param, "axes").name("座標軸");
-  gui.add(param, "x", -50, 50).name("x軸");
-  gui.add(param, "y", 10, 50).name("y軸");
-  gui.add(param, "z", -50, 50).name("z軸");
 
 //HPの表示
 function hpgauge(){
@@ -376,10 +370,25 @@ hpgauge();
     }
 
     // キャラクターの移動
-    if (key.w) MainCharacter.position.z += 0.3; // 前進
-    if (key.s) MainCharacter.position.z -= 0.3; // 後退
-    if (key.a) MainCharacter.position.x += 0.15; // 左
-    if (key.d) MainCharacter.position.x -= 0.15; // 右
+    if (key.w){
+      MainCharacter.position.z += 0.3; // 前進
+      MainCharacter2.position.z -= 0.3;
+    }
+
+    if (key.s){
+      MainCharacter.position.z -= 0.3; // 後退
+      MainCharacter2.position.z += 0.3;
+    }
+
+    if (key.a){
+      MainCharacter.position.x += 0.15; // 左
+      MainCharacter2.position.x += 0.15;
+    }
+
+    if (key.d){
+      MainCharacter.position.x -= 0.15; // 右
+      MainCharacter2.position.x -= 0.15; // 右
+    }
 
     //以下はspaceキーを押すとブラウザがスクロールされるのを防ぐために追加
     //導入前はジャンプのためにspaceキーを押すとWebページの方がスクロールされてしまった.
@@ -388,6 +397,7 @@ hpgauge();
         event.preventDefault();  // ←←←←←←スペースキーによるスクロールを防ぐ
         if (key.space && MainCharacter.position.y == 0){
           MainCharacter.position.y += 5;  
+          MainCharacter2.position.y += 5;  
         }
       }
     });
@@ -395,6 +405,7 @@ hpgauge();
     //ジャンプした後、地面につくため
     if(MainCharacter.position.y > 0){
       MainCharacter.position.y -= 0.25; 
+      MainCharacter2.position.y -= 0.25; 
     } 
 
 
