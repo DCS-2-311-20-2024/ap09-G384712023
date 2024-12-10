@@ -316,7 +316,6 @@ hpgauge();
     if (event.key === 's') key.s = true;
     if (event.key === 'd') key.d = true;
     if (event.key === ' ') key.space = true;
-    if (event.key === 'j') key.j = true;
     });
 
   document.addEventListener('keyup', (event) => {
@@ -325,7 +324,6 @@ hpgauge();
     if (event.key === 's') key.s = false;
     if (event.key === 'd') key.d = false;
     if (event.key === ' ') key.space = false;
-    if (event.key === 'j') key.j = false;
   });
 
   // メインキャラの追加
@@ -393,6 +391,39 @@ hpgauge();
       }
     });
     
+    let isAttacking = false; // 攻撃中フラグ
+    let isKeyDown = false;   // キー押下フラグ
+    
+    document.addEventListener('keydown', (event) => {
+
+      if (event.key == 'j' && !isKeyDown) {
+        isKeyDown = true; // 押下状態を記録
+        
+        const box1 = new THREE.Box3().setFromObject(MainCharacter);
+        const box2 = new THREE.Box3().setFromObject(MainCharacter2);
+
+        if (box1.intersectsBox(box2)) {
+          if (!isAttacking) { // 攻撃中でなければ
+            isAttacking = true; // 攻撃フラグを立てる
+            currentBHP -= 0.1; // 通常攻撃のダメージ
+            if (currentBHP < 0) {
+            currentBHP = 0;
+            }
+            bosshp(); // ボスのHPゲージを更新する関数
+
+            setTimeout(() => {
+              isAttacking = false; // 一定時間後に攻撃可能に
+            }, 500); // 攻撃クールダウン（調整可能）
+          }
+        }
+
+        // 一定時間後に攻撃フラグをリセット
+        setTimeout(() => {
+          isAttacking = false; // 再度攻撃可能
+        }, 1500); // 0.5秒後に攻撃可能（調整可能）
+      }
+    });
+
     document.addEventListener('keydown', (event) => {
       if (event.key == 'k' && currentPower == 100) {
         currentPower -= 100;
@@ -404,16 +435,16 @@ hpgauge();
         const box1 = new THREE.Box3().setFromObject(MainCharacter);
         const box2 = new THREE.Box3().setFromObject(MainCharacter2);
 
-      if (box1.intersectsBox(box2)) {
-        currentBHP -= 50; // 必殺技のダメージ
-        if (currentBHP < 0) {
-          currentBHP = 0;
+        if (box1.intersectsBox(box2)) {
+          currentBHP -= 50; // 必殺技のダメージ
+          if (currentBHP < 0) {
+            currentBHP = 0;
+          }
+          bosshp(); // ボスのHPゲージを更新する関数
         }
-        bosshp(); // ボスのHPゲージを更新する関数
-      }
       
-    }
-  });
+      }
+    });
 
     if(currentPower < maxPower){
       currentPower += 0.5;
