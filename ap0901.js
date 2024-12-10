@@ -328,7 +328,7 @@ hpgauge();
   scene.add(MainCharacter);
 
   const MainCharacter2 = MakeMainCharacter();
-  MainCharacter2.position.z = 30;
+  MainCharacter2.position.z = 70;
   scene.add(MainCharacter2);
 
 
@@ -337,7 +337,7 @@ hpgauge();
     const box2 = new THREE.Box3().setFromObject(MainCharacter2);
   
     if (box1.intersectsBox(box2) && currentBHP > 0) {
-      currentHP -= 0.1;
+      currentHP -= 0.5;
       hpgauge();
   
       if (currentHP < 0) {
@@ -409,36 +409,21 @@ hpgauge();
     } 
 
 
-    let isAttacking = false; // 攻撃中フラグ
-    let isKeyDown = false;   // キー押下フラグ
-    
     document.addEventListener('keydown', (event) => {
 
-      if (event.key == 'j' && !isKeyDown) {
-        isKeyDown = true; // 押下状態を記録
-        
+      if (event.key == 'j') { 
+
         const box1 = new THREE.Box3().setFromObject(MainCharacter);
         const box2 = new THREE.Box3().setFromObject(MainCharacter2);
 
         if (box1.intersectsBox(box2)) {
-          if (!isAttacking) { // 攻撃中でなければ
-            isAttacking = true; // 攻撃フラグを立てる
-            currentBHP -= 0.1; // 通常攻撃のダメージ
+            currentBHP -= 0.01; // 通常攻撃のダメージ
             if (currentBHP < 0) {
             currentBHP = 0;
             }
             bosshp(); // ボスのHPゲージを更新する関数
-
-            setTimeout(() => {
-              isAttacking = false; // 一定時間後に攻撃可能に
-            }, 500); // 攻撃クールダウン（調整可能）
-          }
         }
 
-        // 一定時間後に攻撃フラグをリセット
-        setTimeout(() => {
-          isAttacking = false; // 再度攻撃可能
-        }, 1500); // 0.5秒後に攻撃可能（調整可能）
       }
     });
 
@@ -460,7 +445,6 @@ hpgauge();
           }
           bosshp(); // ボスのHPゲージを更新する関数
         }
-      
       }
     });
 
@@ -474,6 +458,14 @@ hpgauge();
       light.intensity = 5; //光の強さも同様に戻る
       scene.remove(MainCharacter2);//ボスをmapから消す
       ID.innerText = "Game Clear!";
+    }
+
+    if (currentHP <= 0) {
+      ID.innerText = "Game Over!";
+      setTimeout(() => {
+        location.reload();
+      }, 3000); // game overから3秒経ったら、sceneを再ロード
+      
     }
 
     //カメラはキャラを追尾
