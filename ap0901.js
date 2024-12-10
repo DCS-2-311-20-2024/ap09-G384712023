@@ -331,7 +331,7 @@ hpgauge();
   MainCharacter2.position.z = 70;
   scene.add(MainCharacter2);
 
-
+  //　キャラとボスの衝突判定
   function checkCharacterCollision() {
     const box1 = new THREE.Box3().setFromObject(MainCharacter);
     const box2 = new THREE.Box3().setFromObject(MainCharacter2);
@@ -346,6 +346,7 @@ hpgauge();
     }
   }
 
+  // 判定用
   let counter = true;
 
   // 描画関数
